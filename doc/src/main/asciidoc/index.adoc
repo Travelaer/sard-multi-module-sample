@@ -1,0 +1,13 @@
+:path: .
+
+= Global doc
+:toc: left
+:sectnums:
+
+:leveloffset: +1
+
+include::./module1/index.adoc[]
+
+include::./module2/index.adoc[]
+
+:leveloffset: -1

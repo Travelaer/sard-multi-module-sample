@@ -1,0 +1,9 @@
+.idea/
+*.iml
+
+*.class
+*/target/
+
+doc/src/main/asciidoc/module1/
+doc/src/main/asciidoc/module2/
+doc/src/main/asciidoc/doc/

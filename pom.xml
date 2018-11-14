@@ -1,0 +1,263 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.travelaer-github</groupId>
+    <artifactId>spring-rest-docs-multi-module-sample-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>Sample for multi-module setup and Spring Auto REST Docs</name>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.3.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>module1</module>
+        <module>module2</module>
+        <module>doc</module>
+    </modules>
+
+    <dependencies>
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </dependency>
+
+        <!-- Documentation -->
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <version>2.0.2.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>capital.scalable</groupId>
+            <artifactId>spring-auto-restdocs-core</artifactId>
+            <version>2.0.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>1.4.7.RELEASE</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.2</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <maxmem>1024m</maxmem>
+                        <compilerArgs>
+                            <arg>-Xlint</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.18</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <org.springframework.restdocs.outputDir>target/generated-snippets</org.springframework.restdocs.outputDir>
+                            <org.springframework.restdocs.javadocJsonDir>target/generated-javadoc-json</org.springframework.restdocs.javadocJsonDir>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+
+                <!-- Documentation -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <extensions>true</extensions>
+                    <executions>
+                        <execution>
+                            <id>generate-javadoc-json</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>javadoc-no-fork</goal>
+                            </goals>
+                            <configuration>
+                                <doclet>capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet</doclet>
+                                <docletArtifact>
+                                    <groupId>capital.scalable</groupId>
+                                    <artifactId>spring-auto-restdocs-json-doclet</artifactId>
+                                    <version>2.0.2</version>
+                                </docletArtifact>
+                                <destDir>generated-javadoc-json</destDir>
+                                <reportOutputDirectory>target</reportOutputDirectory>
+                                <useStandardDocletOptions>false</useStandardDocletOptions>
+                                <show>package</show>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                    <version>1.5.7.1</version>
+                    <executions>
+                        <execution>
+                            <id>generate-docs</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>process-asciidoc</goal>
+                            </goals>
+                            <configuration>
+                                <backend>html</backend>
+                                <doctype>book</doctype>
+                                <preserveDirectories>true</preserveDirectories>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework.restdocs</groupId>
+                            <artifactId>spring-restdocs-asciidoctor</artifactId>
+                            <version>2.0.2.RELEASE</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <!-- The resource plugin must be declared after the Asciidoctor plugin as they are
+                bound to the same phase (prepare-package) and the resource plugin must run after the
+                Asciidoctor plugin to ensure that the documentation is generated before it’s copied. -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <executions>
+                        <execution>
+                            <id>copy-asciidoc-snippets-to-application</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>../doc/src/main/asciidoc/${project.artifactId}</outputDirectory>
+                                <resources>
+                                    <resource><directory>target/generated-snippets</directory></resource>
+                                    <resource><directory>target/generated-javadoc-json</directory></resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>copy-asciidoc-manual-to-application</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>../doc/src/main/asciidoc/${project.artifactId}</outputDirectory>
+                                <resources>
+                                    <resource><directory>src/main/asciidoc</directory></resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>copy-resources</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>target/static/docs</outputDirectory>
+                                <resources>
+                                    <resource><directory>target/generated-docs</directory></resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- IMPROVEMENT NEEDED: Delete the asciidoc sources copied during doc generation -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>doc/src/main/asciidoc</directory>
+                            <excludes>
+                                <exclude>index.adoc</exclude>
+                                <exclude>doc/**/*.*</exclude>
+                            </excludes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>travelaerReleases</id>
+            <name>Travelaer Nexus Release</name>
+            <url>https://nexus.travelaer.internal:8443/repository/maven-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>travelaerSnapshots</id>
+            <name>Travelaer Nexus Snapshot</name>
+            <url>https://nexus.travelaer.internal:8443/repository/maven-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+</project>

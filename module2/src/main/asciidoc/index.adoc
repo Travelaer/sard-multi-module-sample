@@ -1,0 +1,19 @@
+// Maybe there's a better way, but for now this is all I found
+// to be able to include snippets in both standalone and compiled
+// version of the doc
+// It should be present in the header of all module docs
+ifndef::path[]
+:path: ../../../target/generated-snippets
+endif::path[]
+
+= Module 2
+:toc: left
+:sectnums:
+
+== Introduction
+
+Hello Two !
+
+== Second Endpoint API
+
+include::{path}/controller-test/second-endpoint/auto-section.adoc[]
